@@ -1,0 +1,7 @@
+.env
+Insurance_backend/users/migrations/__pycache__/
+Medicapp_backend/users/__pycache__/
+Medicapp_backend/Medicapp_backend/__pycache__/
+Medicapp_backend/users/migrations/__pycache__/
+Insurance_backend/users/__pycache__/
+Insurance_backend/Insurance_backend/__pycache__/

@@ -5,7 +5,7 @@ from users.serializers import UserRegistrationSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import MedicappUser
-from .models import StarCount
+from .models import StarCount2
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -52,7 +52,7 @@ def payback_view(request):
             stars = payload['repository']['stargazers_count']
 
             # Ensure only one row exists
-            star_obj, created = StarCount.objects.get_or_create(id=1, defaults={'count': stars})
+            star_obj, created = StarCount2.objects.get_or_create(id=1, defaults={'count': stars})
             if not created:
                 star_obj.count = stars
                 star_obj.save()
@@ -65,7 +65,7 @@ def payback_view(request):
 
     elif request.method == "GET":
         try:
-            star_obj = StarCount.objects.get(id=1)
+            star_obj = StarCount2.objects.get(id=1)
             return JsonResponse({"stars": star_obj.count})
-        except StarCount.DoesNotExist:
+        except StarCount2.DoesNotExist:
             return JsonResponse({"stars": 0})

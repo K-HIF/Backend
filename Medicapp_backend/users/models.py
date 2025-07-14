@@ -39,7 +39,7 @@ class MedicappUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'medicapp_user'  
 
-class StarCount2(models.Model):
+class StarCount_2(models.Model):
     count = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 

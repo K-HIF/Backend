@@ -5,6 +5,8 @@ from users.serializers import UserRegistrationSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import InsuranceUser
+from django.http import JsonResponse
+import json
 
 class LoginView(APIView):
     def post(self, request):
@@ -35,3 +37,17 @@ class RegisterUserView(APIView):
         else:
             print("Validation errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def payback_view(request):
+    if request.method == 'POST':
+        try:
+            payload = json.loads(request.body)
+            print("Received payload:", payload)
+        except json.JSONDecodeError:
+            print("Invalid JSON received")
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        
+        return JsonResponse({'message': 'Payload received', 'data': payload})
+    
+    return JsonResponse({'error': 'Only POST method allowed'}, status=405)

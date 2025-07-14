@@ -38,3 +38,14 @@ class InsuranceUser(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = 'insurance_user'  
+
+
+
+
+
+class StarCount(models.Model):
+    count = models.IntegerField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.count)

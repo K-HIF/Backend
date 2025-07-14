@@ -5,6 +5,7 @@ from users.serializers import UserRegistrationSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import MedicappUser
+from .models import StarCount
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -43,16 +44,28 @@ class RegisterUserView(APIView):
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@require_http_methods(["POST", "GET"])
 def payback_view(request):
-    try:
-        payload = json.loads(request.body)
-        stargazers_count = payload['repository']['stargazers_count']
-        print(stargazers_count)
-        
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+            stars = payload['repository']['stargazers_count']
 
-        # Respond with acknowledgment
-        return JsonResponse({"message": "Payload received"}, status=200)
-    except Exception as e:
-        print(f"❌ Error parsing payload: {e}")
-        return JsonResponse({"error": str(e)}, status=400)
+            # Ensure only one row exists
+            star_obj, created = StarCount.objects.get_or_create(id=1, defaults={'count': stars})
+            if not created:
+                star_obj.count = stars
+                star_obj.save()
+
+            return JsonResponse({"message": "Star count saved/updated"}, status=200)
+
+        except Exception as e:
+            print(f"❌ Error parsing payload: {e}")
+            return JsonResponse({"error": str(e)}, status=400)
+
+    elif request.method == "GET":
+        try:
+            star_obj = StarCount.objects.get(id=1)
+            return JsonResponse({"stars": star_obj.count})
+        except StarCount.DoesNotExist:
+            return JsonResponse({"stars": 0})

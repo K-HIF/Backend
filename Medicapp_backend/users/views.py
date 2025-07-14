@@ -4,25 +4,28 @@ from rest_framework import status
 from users.serializers import UserRegistrationSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import MedicappUser
-from .models import StarCount_2
+from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from .models import DownvoteCounter, UserDownvote, IPDownvote
 from django.contrib.auth import get_user_model
 
+from social_django.utils import load_strategy
+from social_core.backends.google import GoogleOAuth2
+
 User = get_user_model()
+
+
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        print("Login request data:", request.data)  # Debugging line
+        print("Login request data:", request.data)
         user = authenticate(username=username, password=password)
-        print("Authenticated user:", user)  # Debugging line
+        print("Authenticated user:", user)
         if user is not None:
             refresh = RefreshToken.for_user(user)
             return Response({
@@ -39,13 +42,12 @@ class RegisterUserView(APIView):
         print("Request data:", request.data)
 
         if serializer.is_valid():
-            print("Validated data:", serializer.validated_data)  # ✅ use this
+            print("Validated data:", serializer.validated_data)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)  # ✅ safe after .save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             print("Validation errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @csrf_exempt
@@ -54,10 +56,9 @@ def payback_view(request):
     if request.method == "POST":
         try:
             payload = json.loads(request.body)
-            print("Received payload:", payload)  # Debugging line
+            print("Received payload:", payload)
             stars = payload['repository']['stargazers_count']
-            print("Stars count:", stars)  # Debugging line
-            # Ensure only one row exists
+            print("Stars count:", stars)
             star_obj, created = StarCount_2.objects.get_or_create(id=1, defaults={'count': stars})
             if not created:
                 star_obj.count = stars
@@ -75,8 +76,6 @@ def payback_view(request):
             return JsonResponse({"stars": star_obj.count})
         except StarCount_2.DoesNotExist:
             return JsonResponse({"stars": 0})
-        
-
 
 
 def get_client_ip(request):
@@ -113,3 +112,50 @@ def post_downvote(request):
     counter.count += 1
     counter.save()
     return Response({"message": "Downvote successful", "count": counter.count})
+
+
+# ✅ Google Login View using your custom MedicappUser
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('credential') or request.data.get('token')
+        if not token:
+            return Response({'error': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        strategy = load_strategy(request)
+        backend = GoogleOAuth2(strategy)
+
+        try:
+            user_data = backend.user_data(token)
+        except Exception as e:
+            return Response({'error': 'Invalid token', 'details': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        email = user_data.get('email')
+        username = email  # Use email as username
+
+        if not email:
+            return Response({'error': 'Email not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': username,
+                'is_active': True,
+            }
+        )
+
+        if created:
+            user.set_unusable_password()
+            user.save()
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'access_token': str(refresh.access_token),
+            'refresh_token': str(refresh),
+            'user': {
+                'email': user.email,
+                'username': user.username,
+            }
+        }, status=status.HTTP_200_OK)

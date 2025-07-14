@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from users.serializers import UserRegistrationSerializer
+from users.serializers import UserRegistrationSerializer, DoctorSerializer, PatientSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer, ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote
+from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
+from rest_framework import generics
 
 from social_django.utils import load_strategy
 from social_core.backends.google import GoogleOAuth2
@@ -159,3 +160,93 @@ class GoogleLoginView(APIView):
                 'username': user.username,
             }
         }, status=status.HTTP_200_OK)
+
+
+class DoctorListCreateView(generics.ListCreateAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorSerializer
+
+
+class DoctorRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorSerializer
+
+
+class PatientListCreateView(generics.ListCreateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+
+
+class PatientRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+
+
+class DepartmentListCreateView(generics.ListCreateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+
+class DepartmentRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+
+class ProgramListCreateView(generics.ListCreateAPIView):
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+
+
+class ProgramRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+
+
+class InsuranceProviderListCreateView(generics.ListCreateAPIView):
+    queryset = InsuranceProvider.objects.all()
+    serializer_class = InsuranceProviderSerializer
+
+
+class InsuranceProviderRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = InsuranceProvider.objects.all()
+    serializer_class = InsuranceProviderSerializer
+
+
+class ClaimListCreateView(generics.ListCreateAPIView):
+    queryset = Claim.objects.all()
+    serializer_class = ClaimSerializer
+
+
+class ClaimRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Claim.objects.all()
+    serializer_class = ClaimSerializer
+
+
+class PharmacyListCreateView(generics.ListCreateAPIView):
+    queryset = Pharmacy.objects.all()
+    serializer_class = PharmacySerializer
+
+
+class PharmacyRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Pharmacy.objects.all()
+    serializer_class = PharmacySerializer
+
+
+class PharmacyItemListCreateView(generics.ListCreateAPIView):
+    queryset = PharmacyItem.objects.all()
+    serializer_class = PharmacyItemSerializer
+
+
+class PharmacyItemRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = PharmacyItem.objects.all()
+    serializer_class = PharmacyItemSerializer
+
+
+class NurseListCreateView(generics.ListCreateAPIView):
+    queryset = Nurse.objects.all()
+    serializer_class = NurseSerializer
+
+
+class NurseRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Nurse.objects.all()
+    serializer_class = NurseSerializer

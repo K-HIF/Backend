@@ -13,7 +13,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path("health/", health_check),
     path('stars/', payback_view, name='payback'),
-    path('api/users/downvotes/', views.get_downvotes),
-    path('api/users/downvote/', views.post_downvote),
+    path('downvotes/', views.get_downvotes),
+    path('downvote/', views.post_downvote),
 ]
 

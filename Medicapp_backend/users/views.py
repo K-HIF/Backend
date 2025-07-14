@@ -7,6 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import MedicappUser
 from django.http import JsonResponse
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 class LoginView(APIView):
     def post(self, request):
@@ -38,15 +40,18 @@ class RegisterUserView(APIView):
             print("Validation errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
 def payback_view(request):
-    if request.method == 'POST':
-        try:
-            payload = json.loads(request.body)
-            print("Received payload:", payload)
-        except json.JSONDecodeError:
-            print("Invalid JSON received")
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
-        
-        return JsonResponse({'message': 'Payload received', 'data': payload})
-    
-    return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+    try:
+        payload = json.loads(request.body)
+        print("📦 GitHub Webhook Payload:")
+        print(json.dumps(payload, indent=4))  # pretty-print for readability
+
+        # Respond with acknowledgment
+        return JsonResponse({"message": "Payload received"}, status=200)
+    except Exception as e:
+        print(f"❌ Error parsing payload: {e}")
+        return JsonResponse({"error": str(e)}, status=400)

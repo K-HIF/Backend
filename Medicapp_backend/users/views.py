@@ -10,7 +10,12 @@ from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from .models import DownvoteCounter, UserDownvote, IPDownvote
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -70,3 +75,41 @@ def payback_view(request):
             return JsonResponse({"stars": star_obj.count})
         except StarCount_2.DoesNotExist:
             return JsonResponse({"stars": 0})
+        
+
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    return ip
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_downvotes(request):
+    counter, _ = DownvoteCounter.objects.get_or_create(id=1)
+    return Response({"count": counter.count})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def post_downvote(request):
+    counter, _ = DownvoteCounter.objects.get_or_create(id=1)
+
+    if request.user.is_authenticated:
+        if UserDownvote.objects.filter(user=request.user).exists():
+            return Response({"detail": "You have already downvoted."}, status=status.HTTP_400_BAD_REQUEST)
+        UserDownvote.objects.create(user=request.user)
+    else:
+        ip = get_client_ip(request)
+        if IPDownvote.objects.filter(ip_address=ip).exists():
+            return Response({"detail": "This IP has already downvoted."}, status=status.HTTP_400_BAD_REQUEST)
+        IPDownvote.objects.create(ip_address=ip)
+
+    counter.count += 1
+    counter.save()
+    return Response({"message": "Downvote successful", "count": counter.count})

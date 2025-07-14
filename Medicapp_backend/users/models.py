@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.conf import settings  # to access the schema from .env (via settings)
+
 
 class MedicappUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -15,7 +15,6 @@ class MedicappUserManager(BaseUserManager):
         user.save()
         return user
 
-
     def create_superuser(self, username, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
@@ -24,7 +23,7 @@ class MedicappUserManager(BaseUserManager):
 
 class MedicappUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150,unique=True)  
+    username = models.CharField(max_length=150, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -33,15 +32,39 @@ class MedicappUser(AbstractBaseUser, PermissionsMixin):
 
     objects = MedicappUserManager()
 
-    def __str__(self):
+    def _str_(self):
         return self.email
 
     class Meta:
-        db_table = 'medicapp_user'  
+        db_table = 'medicapp_user'
+
 
 class StarCount_2(models.Model):
     count = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+    def _str_(self):
         return str(self.count)
+
+
+class DownvoteCounter(models.Model):
+    count = models.PositiveIntegerField(default=0)
+
+    def _str_(self):
+        return f"Total Downvotes: {self.count}"
+
+
+class UserDownvote(models.Model):
+    user = models.OneToOneField(MedicappUser, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"{self.user.username} downvoted at {self.timestamp}"
+
+
+class IPDownvote(models.Model):
+    ip_address = models.GenericIPAddressField(unique=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"{self.ip_address} downvoted at {self.timestamp}"

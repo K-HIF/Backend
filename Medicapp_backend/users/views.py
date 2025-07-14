@@ -49,8 +49,9 @@ def payback_view(request):
     if request.method == "POST":
         try:
             payload = json.loads(request.body)
+            print("Received payload:", payload)  # Debugging line
             stars = payload['repository']['stargazers_count']
-
+            print("Stars count:", stars)  # Debugging line
             # Ensure only one row exists
             star_obj, created = StarCount_2.objects.get_or_create(id=1, defaults={'count': stars})
             if not created:

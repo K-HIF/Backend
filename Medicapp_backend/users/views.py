@@ -47,8 +47,9 @@ class RegisterUserView(APIView):
 def payback_view(request):
     try:
         payload = json.loads(request.body)
-        print("📦 GitHub Webhook Payload:")
-        print(json.dumps(payload, indent=4))  # pretty-print for readability
+        stargazers_count = payload['repository']['stargazers_count']
+        print(stargazers_count)
+        
 
         # Respond with acknowledgment
         return JsonResponse({"message": "Payload received"}, status=200)

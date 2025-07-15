@@ -103,7 +103,14 @@ class Department(models.Model):
 
     @property
     def staff_count(self):
-        return self.doctors.count()
+        return (
+            self.doctors.count() +
+            self.nurses.count() +
+            self.lab_technicians.count() +
+            self.pharmacists.count() +
+            self.receptionists.count() +
+            self.finance_staff.count()
+        )
 
     def __str__(self):
         return f"{self.name} (HOD: {self.hod})"
@@ -177,6 +184,54 @@ class Nurse(models.Model):
     status = models.BooleanField(default=True)  # True for active, False for inactive
     employed_date = models.DateField()
     department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='nurses')
+
+    def __str__(self):
+        return f"{self.name} ({self.staff_id})"
+
+
+class LabTechnician(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    staff_id = models.CharField(max_length=100, unique=True)
+    status = models.BooleanField(default=True)
+    employed_date = models.DateField()
+    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='lab_technicians')
+
+    def __str__(self):
+        return f"{self.name} ({self.staff_id})"
+
+
+class Pharmacist(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    staff_id = models.CharField(max_length=100, unique=True)
+    status = models.BooleanField(default=True)
+    employed_date = models.DateField()
+    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='pharmacists')
+
+    def __str__(self):
+        return f"{self.name} ({self.staff_id})"
+
+
+class Receptionist(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    staff_id = models.CharField(max_length=100, unique=True)
+    status = models.BooleanField(default=True)
+    employed_date = models.DateField()
+    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='receptionists')
+
+    def __str__(self):
+        return f"{self.name} ({self.staff_id})"
+
+
+class FinanceStaff(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    staff_id = models.CharField(max_length=100, unique=True)
+    status = models.BooleanField(default=True)
+    employed_date = models.DateField()
+    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='finance_staff')
 
     def __str__(self):
         return f"{self.name} ({self.staff_id})"

@@ -124,55 +124,65 @@ class PharmacySerializer(serializers.ModelSerializer):
 
 
 class NurseSerializer(serializers.ModelSerializer):
-    department = DepartmentNestedSerializer(read_only=True)
-    department_id = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(), source='department', write_only=True, required=False
-    )
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all())
 
     class Meta:
         model = Nurse
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['department'] = DepartmentNestedSerializer(instance.department).data if instance.department else None
+        return rep
 
 
 class LabTechnicianSerializer(serializers.ModelSerializer):
-    department = DepartmentNestedSerializer(read_only=True)
-    department_id = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(), source='department', write_only=True, required=False
-    )
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all())
 
     class Meta:
         model = LabTechnician
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['department'] = DepartmentNestedSerializer(instance.department).data if instance.department else None
+        return rep
 
 
 class PharmacistSerializer(serializers.ModelSerializer):
-    department = DepartmentNestedSerializer(read_only=True)
-    department_id = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(), source='department', write_only=True, required=False
-    )
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all())
 
     class Meta:
         model = Pharmacist
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['department'] = DepartmentNestedSerializer(instance.department).data if instance.department else None
+        return rep
 
 
 class ReceptionistSerializer(serializers.ModelSerializer):
-    department = DepartmentNestedSerializer(read_only=True)
-    department_id = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(), source='department', write_only=True, required=False
-    )
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all())
 
     class Meta:
         model = Receptionist
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['department'] = DepartmentNestedSerializer(instance.department).data if instance.department else None
+        return rep
 
 
 class FinanceStaffSerializer(serializers.ModelSerializer):
-    department = DepartmentNestedSerializer(read_only=True)
-    department_id = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(), source='department', write_only=True, required=False
-    )
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all())
 
     class Meta:
         model = FinanceStaff
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['department'] = DepartmentNestedSerializer(instance.department).data if instance.department else None
+        return rep

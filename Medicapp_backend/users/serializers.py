@@ -116,3 +116,27 @@ class NurseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nurse
         fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+
+class LabTechnicianSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabTechnician
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+
+class PharmacistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pharmacist
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+
+class ReceptionistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Receptionist
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+
+
+class FinanceStaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinanceStaff
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']

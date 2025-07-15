@@ -19,10 +19,21 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class DepartmentNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'name']
+
+
 class DoctorSerializer(serializers.ModelSerializer):
+    department = DepartmentNestedSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), source='department', write_only=True, required=False
+    )
+
     class Meta:
         model = Doctor
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -113,30 +124,55 @@ class PharmacySerializer(serializers.ModelSerializer):
 
 
 class NurseSerializer(serializers.ModelSerializer):
+    department = DepartmentNestedSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), source='department', write_only=True, required=False
+    )
+
     class Meta:
         model = Nurse
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
 
 
 class LabTechnicianSerializer(serializers.ModelSerializer):
+    department = DepartmentNestedSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), source='department', write_only=True, required=False
+    )
+
     class Meta:
         model = LabTechnician
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
 
 
 class PharmacistSerializer(serializers.ModelSerializer):
+    department = DepartmentNestedSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), source='department', write_only=True, required=False
+    )
+
     class Meta:
         model = Pharmacist
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
 
 
 class ReceptionistSerializer(serializers.ModelSerializer):
+    department = DepartmentNestedSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), source='department', write_only=True, required=False
+    )
+
     class Meta:
         model = Receptionist
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']
 
 
 class FinanceStaffSerializer(serializers.ModelSerializer):
+    department = DepartmentNestedSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), source='department', write_only=True, required=False
+    )
+
     class Meta:
         model = FinanceStaff
-        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department']
+        fields = ['id', 'name', 'email', 'staff_id', 'status', 'employed_date', 'department', 'department_id']

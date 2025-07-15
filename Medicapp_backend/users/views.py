@@ -161,8 +161,14 @@ class GoogleLoginView(APIView):
 
 
 class DoctorListCreateView(generics.ListCreateAPIView):
-    queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
+
+    def get_queryset(self):
+        queryset = Doctor.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
 
 
 class DoctorRetrieveUpdateView(generics.RetrieveUpdateAPIView):
@@ -241,8 +247,14 @@ class PharmacyItemRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class NurseListCreateView(generics.ListCreateAPIView):
-    queryset = Nurse.objects.all()
     serializer_class = NurseSerializer
+
+    def get_queryset(self):
+        queryset = Nurse.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
 
 
 class NurseRetrieveUpdateView(generics.RetrieveUpdateAPIView):
@@ -251,8 +263,14 @@ class NurseRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class LabTechnicianListCreateView(generics.ListCreateAPIView):
-    queryset = LabTechnician.objects.all()
     serializer_class = LabTechnicianSerializer
+
+    def get_queryset(self):
+        queryset = LabTechnician.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
 
 
 class LabTechnicianRetrieveUpdateView(generics.RetrieveUpdateAPIView):
@@ -261,8 +279,14 @@ class LabTechnicianRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class PharmacistListCreateView(generics.ListCreateAPIView):
-    queryset = Pharmacist.objects.all()
     serializer_class = PharmacistSerializer
+
+    def get_queryset(self):
+        queryset = Pharmacist.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
 
 
 class PharmacistRetrieveUpdateView(generics.RetrieveUpdateAPIView):
@@ -271,8 +295,14 @@ class PharmacistRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class ReceptionistListCreateView(generics.ListCreateAPIView):
-    queryset = Receptionist.objects.all()
     serializer_class = ReceptionistSerializer
+
+    def get_queryset(self):
+        queryset = Receptionist.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
 
 
 class ReceptionistRetrieveUpdateView(generics.RetrieveUpdateAPIView):
@@ -281,8 +311,14 @@ class ReceptionistRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class FinanceStaffListCreateView(generics.ListCreateAPIView):
-    queryset = FinanceStaff.objects.all()
     serializer_class = FinanceStaffSerializer
+
+    def get_queryset(self):
+        queryset = FinanceStaff.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
 
 
 class FinanceStaffRetrieveUpdateView(generics.RetrieveUpdateAPIView):

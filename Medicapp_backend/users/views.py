@@ -1,10 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from users.serializers import UserRegistrationSerializer, DoctorSerializer, PatientSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer, ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer
-from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
-from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse
+from users.serializers import UserRegistrationSerializer, DoctorSerializer, PatientSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer, ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer
+from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -250,3 +248,43 @@ class NurseListCreateView(generics.ListCreateAPIView):
 class NurseRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Nurse.objects.all()
     serializer_class = NurseSerializer
+
+
+class LabTechnicianListCreateView(generics.ListCreateAPIView):
+    queryset = LabTechnician.objects.all()
+    serializer_class = LabTechnicianSerializer
+
+
+class LabTechnicianRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = LabTechnician.objects.all()
+    serializer_class = LabTechnicianSerializer
+
+
+class PharmacistListCreateView(generics.ListCreateAPIView):
+    queryset = Pharmacist.objects.all()
+    serializer_class = PharmacistSerializer
+
+
+class PharmacistRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Pharmacist.objects.all()
+    serializer_class = PharmacistSerializer
+
+
+class ReceptionistListCreateView(generics.ListCreateAPIView):
+    queryset = Receptionist.objects.all()
+    serializer_class = ReceptionistSerializer
+
+
+class ReceptionistRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Receptionist.objects.all()
+    serializer_class = ReceptionistSerializer
+
+
+class FinanceStaffListCreateView(generics.ListCreateAPIView):
+    queryset = FinanceStaff.objects.all()
+    serializer_class = FinanceStaffSerializer
+
+
+class FinanceStaffRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = FinanceStaff.objects.all()
+    serializer_class = FinanceStaffSerializer

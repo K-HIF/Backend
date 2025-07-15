@@ -12,6 +12,10 @@ from .views import ClaimListCreateView, ClaimRetrieveUpdateView
 from .views import PharmacyListCreateView, PharmacyRetrieveUpdateView
 from .views import PharmacyItemListCreateView, PharmacyItemRetrieveUpdateView
 from .views import NurseListCreateView, NurseRetrieveUpdateView
+from .views import LabTechnicianListCreateView, LabTechnicianRetrieveUpdateView
+from .views import PharmacistListCreateView, PharmacistRetrieveUpdateView
+from .views import ReceptionistListCreateView, ReceptionistRetrieveUpdateView
+from .views import FinanceStaffListCreateView, FinanceStaffRetrieveUpdateView
 from . import views
 
 def health_check(request):
@@ -43,5 +47,13 @@ urlpatterns = [
     path('pharmacy-items/<int:pk>/', PharmacyItemRetrieveUpdateView.as_view(), name='pharmacyitem-detail'),
     path('nurses/', NurseListCreateView.as_view(), name='nurse-list-create'),
     path('nurses/<int:pk>/', NurseRetrieveUpdateView.as_view(), name='nurse-detail'),
+    path('labtechnicians/', LabTechnicianListCreateView.as_view(), name='labtechnician-list-create'),
+    path('labtechnicians/<int:pk>/', LabTechnicianRetrieveUpdateView.as_view(), name='labtechnician-detail'),
+    path('pharmacists/', PharmacistListCreateView.as_view(), name='pharmacist-list-create'),
+    path('pharmacists/<int:pk>/', PharmacistRetrieveUpdateView.as_view(), name='pharmacist-detail'),
+    path('receptionists/', ReceptionistListCreateView.as_view(), name='receptionist-list-create'),
+    path('receptionists/<int:pk>/', ReceptionistRetrieveUpdateView.as_view(), name='receptionist-detail'),
+    path('financestaff/', FinanceStaffListCreateView.as_view(), name='financestaff-list-create'),
+    path('financestaff/<int:pk>/', FinanceStaffRetrieveUpdateView.as_view(), name='financestaff-detail'),
 ]
 

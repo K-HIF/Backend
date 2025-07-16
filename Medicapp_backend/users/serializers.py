@@ -95,7 +95,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
-        fields = ['id', 'name', 'email', 'status', 'start_date', 'end_date', 'coordinator']
+        fields = '__all__'
 
 
 class InsuranceProviderSerializer(serializers.ModelSerializer):

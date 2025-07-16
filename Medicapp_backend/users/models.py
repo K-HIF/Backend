@@ -117,16 +117,19 @@ class Department(models.Model):
 
 
 class Program(models.Model):
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+    ]
+
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    status = models.BooleanField(default=True)  # True for active, False for inactive
-    start_date = models.DateField()
-    end_date = models.DateField()
-    coordinator = models.ForeignKey('Doctor', on_delete=models.SET_NULL, null=True, related_name='coordinated_programs')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
+    startYear = models.DateField()
+    endYear = models.DateField()
 
     def __str__(self):
-        return f"{self.name} (Coordinator: {self.coordinator})"
-
+        return self.name
 
 class InsuranceProvider(models.Model):
     PLAN_CHOICES = [

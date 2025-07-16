@@ -201,6 +201,17 @@ class ProgramListCreateView(generics.ListCreateAPIView):
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
 
+    #def post(self, request, *args, **kwargs):
+    #    print("⚠️ Raw request data:", request.data)
+    #    serializer = self.get_serializer(data=request.data)
+    #    if serializer.is_valid():
+    #        print("✅ Serializer is valid:", serializer.validated_data)
+    #        self.perform_create(serializer)
+    #        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #    else:
+    #        print("❌ Serializer errors:", serializer.errors)
+    #        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProgramRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Program.objects.all()

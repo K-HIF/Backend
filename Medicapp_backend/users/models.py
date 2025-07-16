@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-
+from django.contrib.postgres.fields import ArrayField
 
 class MedicappUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -130,20 +130,25 @@ class Program(models.Model):
 
 class InsuranceProvider(models.Model):
     PLAN_CHOICES = [
-        ('gold', 'Gold'),
-        ('standard', 'Standard'),
-        ('basic', 'Basic'),
-        ('all', 'All'),
+        ('Basic', 'Basic'),
+        ('Standard', 'Standard'),
+        ('Premium', 'Premium'),
     ]
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+    ]
+
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    plans = models.CharField(max_length=20, choices=PLAN_CHOICES)
-    status = models.BooleanField(default=True)  # True for active, False for inactive
-    date_of_agreement = models.DateField()
+    plan = ArrayField(models.CharField(max_length=50, choices=PLAN_CHOICES), default=list)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
+    since = models.DateField()
+    logo = models.URLField(default='https://via.placeholder.com/40?text=🏥')
 
     def __str__(self):
-        return f"{self.name} ({self.plans})"
-
+        return self.name
+    
 
 class Claim(models.Model):
     insurance_name = models.CharField(max_length=255)

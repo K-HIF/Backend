@@ -101,7 +101,7 @@ class ProgramSerializer(serializers.ModelSerializer):
 class InsuranceProviderSerializer(serializers.ModelSerializer):
     class Meta:
         model = InsuranceProvider
-        fields = ['id', 'name', 'email', 'plans', 'status', 'date_of_agreement']
+        fields = '__all__'
 
 
 class ClaimSerializer(serializers.ModelSerializer):

@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework import generics
-
+from django.contrib.auth import authenticate
 from social_django.utils import load_strategy
 from social_core.backends.google import GoogleOAuth2
 

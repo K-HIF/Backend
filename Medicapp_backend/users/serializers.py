@@ -1,6 +1,6 @@
 # users/serializers.py
 from rest_framework import serializers
-from .models import MedicappUser, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff
+from .models import MedicappUser, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -186,3 +186,14 @@ class FinanceStaffSerializer(serializers.ModelSerializer):
         rep = super().to_representation(instance)
         rep['department'] = DepartmentNestedSerializer(instance.department).data if instance.department else None
         return rep
+
+
+class FacilitySerializer(serializers.ModelSerializer):
+    deficit = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Facility
+        fields = ['id', 'name', 'count', 'occupied', 'deficit']
+
+    def get_deficit(self, obj):
+        return obj.count - obj.occupied

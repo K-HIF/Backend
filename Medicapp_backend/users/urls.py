@@ -16,6 +16,7 @@ from .views import LabTechnicianListCreateView, LabTechnicianRetrieveUpdateView
 from .views import PharmacistListCreateView, PharmacistRetrieveUpdateView
 from .views import ReceptionistListCreateView, ReceptionistRetrieveUpdateView
 from .views import FinanceStaffListCreateView, FinanceStaffRetrieveUpdateView
+from .views import FacilityListCreateView, FacilityRetrieveUpdateView
 from . import views
 
 def health_check(request):
@@ -55,5 +56,7 @@ urlpatterns = [
     path('receptionists/<int:pk>/', ReceptionistRetrieveUpdateView.as_view(), name='receptionist-detail'),
     path('financestaff/', FinanceStaffListCreateView.as_view(), name='financestaff-list-create'),
     path('financestaff/<int:pk>/', FinanceStaffRetrieveUpdateView.as_view(), name='financestaff-detail'),
+    path('facilities/', FacilityListCreateView.as_view(), name='facility-list-create'),
+    path('facilities/<int:pk>/', FacilityRetrieveUpdateView.as_view(), name='facility-detail'),
 ]
 

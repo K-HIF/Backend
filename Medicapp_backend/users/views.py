@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from users.serializers import UserRegistrationSerializer, DoctorSerializer, PatientSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer, ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer
-from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff
+from users.serializers import UserRegistrationSerializer, DoctorSerializer, PatientSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer, ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer, FacilitySerializer
+from .models import MedicappUser, StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Doctor, Patient, Department, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
 from django.http import JsonResponse
 import json
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view, permission_classes
@@ -324,3 +325,19 @@ class FinanceStaffListCreateView(generics.ListCreateAPIView):
 class FinanceStaffRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = FinanceStaff.objects.all()
     serializer_class = FinanceStaffSerializer
+
+
+class FacilityListCreateView(generics.ListCreateAPIView):
+    serializer_class = FacilitySerializer
+
+    def get_queryset(self):
+        queryset = Facility.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
+
+
+class FacilityRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Facility.objects.all()
+    serializer_class = FacilitySerializer

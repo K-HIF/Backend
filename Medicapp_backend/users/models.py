@@ -235,3 +235,12 @@ class FinanceStaff(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.staff_id})"
+
+
+class Facility(models.Model):
+    name = models.CharField(max_length=255)
+    count = models.PositiveIntegerField(default=0)
+    occupied = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.name}"

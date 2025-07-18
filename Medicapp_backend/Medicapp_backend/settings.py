@@ -102,6 +102,8 @@ DATABASES = {
     'default': dj_database_url.parse(config('DATABASE_URL'), conn_max_age=600)
 }
 
+
+
 # Set the search path (schema)
 DATABASES['default']['OPTIONS'] = {
     'options': f"-c search_path={config('Medicapp_SCHEMA')},public"

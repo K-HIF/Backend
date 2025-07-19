@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from users.serializers import RegisterSerializer, DepartmentSerializer # DoctorSerializer, PatientSerializer, ProgramSerializer, InsuranceProviderSerializer, ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer, FacilitySerializer
-from .models import MedicappUser , StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Department #, Doctor, Patient, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
+from users.serializers import RegisterSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer,FacilitySerializer # PatientSerializer ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer, 
+from .models import MedicappUser , StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Department, Program, InsuranceProvider, Facility#, Doctor, Patient,  Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
 from django.http import JsonResponse
 import json
 from django.db.models import Value 
@@ -24,8 +24,6 @@ from users.authentication import CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 from .models import Doctor, Nurse, Pharmacy, Lab, Checkout, Reception, MedicappUser
-
-
 from rest_framework import generics
 from rest_framework.response import Response
 from .models import Department, Doctor, Nurse, Pharmacy, Lab, Checkout, Reception
@@ -37,8 +35,19 @@ from .serializers import (
     LabSerializer,
     CheckoutSerializer,
     ReceptionSerializer,
+    MedicappUserSerializer,
 )
 
+class UsersInDepartmentView(generics.ListAPIView):
+    print("UsersInDepartmentView called")  # Debugging line
+    serializer_class = MedicappUserSerializer
+    print("Serializer class set to MedicappUserSerializer")  # Debugging line
+    def get_queryset(self):
+        print("get_queryset called")  # Debugging line
+        department_id = self.kwargs['department_id']
+        print(f"Fetching users for department ID: {department_id}")  # Debugging line
+        return MedicappUser.objects.filter(department_id=department_id)
+    
 class DepartmentListView(generics.ListAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
@@ -137,11 +146,6 @@ class CheckoutListView(generics.ListAPIView):
             print("Error fetching checkouts:", str(e))
             return Response({"error": "An error occurred"}, status=500) 
         
-
-
-
-
-
 
 class DoctorCreateView(generics.CreateAPIView):
     serializer_class = DoctorSerializer
@@ -344,14 +348,67 @@ class GoogleLoginView(APIView):
 
 
 class DepartmentListCreateView(generics.ListCreateAPIView):
-    queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated] 
+    
+    def get_queryset(self):
+        return Department.objects.exclude(name__iexact='admin')
+     
 
 class DepartmentRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [IsAuthenticated]  
+
+
+class ProgramRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+    permission_classes = [IsAuthenticated] 
+
+
+class InsuranceProviderListCreateView(generics.ListCreateAPIView):
+    queryset = InsuranceProvider.objects.all()
+    serializer_class = InsuranceProviderSerializer
+    permission_classes = [IsAuthenticated] 
+
+
+class InsuranceProviderRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = InsuranceProvider.objects.all()
+    serializer_class = InsuranceProviderSerializer
+    permission_classes = [IsAuthenticated] 
+
+class FacilityListCreateView(generics.ListCreateAPIView):
+    serializer_class = FacilitySerializer
+    permission_classes = [IsAuthenticated] 
+
+    def get_queryset(self):
+        queryset = Facility.objects.all()
+        department_id = self.request.query_params.get('department')
+        if department_id:
+            queryset = queryset.filter(department_id=department_id)
+        return queryset
+
+
+class FacilityRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Facility.objects.all()
+    serializer_class = FacilitySerializer
+    permission_classes = [IsAuthenticated] 
+
+class ProgramListCreateView(generics.ListCreateAPIView):
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+    permission_classes = [IsAuthenticated] 
+
+    def post(self, request, *args, **kwargs):
+        print("⚠️ Raw request data:", request.data)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            print("✅ Serializer is valid:", serializer.validated_data)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print("❌ Serializer errors:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 #class NurseListCreateView(generics.ListCreateAPIView):
@@ -406,37 +463,8 @@ class DepartmentRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
 #    serializer_class = DepartmentSerializer
 #
 #
-#class ProgramListCreateView(generics.ListCreateAPIView):
-#    queryset = Program.objects.all()
-#    serializer_class = ProgramSerializer
-#
-#    #def post(self, request, *args, **kwargs):
-#    #    print("⚠️ Raw request data:", request.data)
-#    #    serializer = self.get_serializer(data=request.data)
-#    #    if serializer.is_valid():
-#    #        print("✅ Serializer is valid:", serializer.validated_data)
-#    #        self.perform_create(serializer)
-#    #        return Response(serializer.data, status=status.HTTP_201_CREATED)
-#    #    else:
-#    #        print("❌ Serializer errors:", serializer.errors)
-#    #        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-#class ProgramRetrieveUpdateView(generics.RetrieveUpdateAPIView):
-#    queryset = Program.objects.all()
-#    serializer_class = ProgramSerializer
-#
-#
-#class InsuranceProviderListCreateView(generics.ListCreateAPIView):
-#    queryset = InsuranceProvider.objects.all()
-#    serializer_class = InsuranceProviderSerializer
-#
-#
-#class InsuranceProviderRetrieveUpdateView(generics.RetrieveUpdateAPIView):
-#    queryset = InsuranceProvider.objects.all()
-#    serializer_class = InsuranceProviderSerializer
-#
-#
+
+
 #class ClaimListCreateView(generics.ListCreateAPIView):
 #    queryset = Claim.objects.all()
 #    serializer_class = ClaimSerializer
@@ -533,19 +561,4 @@ class DepartmentRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
 #    queryset = FinanceStaff.objects.all()
 #    serializer_class = FinanceStaffSerializer
 #
-#
-#class FacilityListCreateView(generics.ListCreateAPIView):
-#    serializer_class = FacilitySerializer
-#
-#    def get_queryset(self):
-#        queryset = Facility.objects.all()
-#        department_id = self.request.query_params.get('department')
-#        if department_id:
-#            queryset = queryset.filter(department_id=department_id)
-#        return queryset
-#
-#
-#class FacilityRetrieveUpdateView(generics.RetrieveUpdateAPIView):
-#    queryset = Facility.objects.all()
-#    serializer_class = FacilitySerializer
 #

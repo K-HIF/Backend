@@ -25,9 +25,15 @@ from .views import (
     ReceptionUpdateView,
     CheckoutListView,
     CheckoutCreateView, 
-    CheckoutUpdateView
-    
-)
+    CheckoutUpdateView,
+    ProgramListCreateView,
+    ProgramRetrieveUpdateView,
+    InsuranceProviderListCreateView,
+    InsuranceProviderRetrieveUpdateView,
+    FacilityListCreateView,
+    FacilityRetrieveUpdateView,
+    UsersInDepartmentView
+    )
 from .views import payback_view,GoogleLoginView
 
 
@@ -43,6 +49,8 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view()),
     path('departments/', DepartmentListCreateView.as_view(), name='department-list-create'),
     path('departments/<int:pk>/', DepartmentRetrieveUpdateView.as_view(), name='department-detail'),
+    path('departments/<int:department_id>/users/', UsersInDepartmentView.as_view(), name='users-in-department'),
+
 
     # stars and downvotes
     path("health/", health_check),
@@ -52,12 +60,12 @@ urlpatterns = [
 
     #Staff URLs
     path('departments/', DepartmentListView.as_view(), name='department-list'),
-    path('doctors/', DoctorListView.as_view(), name='doctor-list'),
-    path('nurses/', NurseListView.as_view(), name='nurse-list'),
-    path('pharmacies/', PharmacyListView.as_view(), name='pharmacy-list'),
+    path('doctor/', DoctorListView.as_view(), name='doctor-list'),
+    path('nurse/', NurseListView.as_view(), name='nurse-list'),
+    path('pharmacy/', PharmacyListView.as_view(), name='pharmacy-list'),
     path('lab/', LabListView.as_view(), name='pharmacy-list'),
     path('reception/', ReceptionListView.as_view(), name='pharmacy-list'),
-    path('checkout/', CheckoutListView.as_view(), name='pharmacy-list'),
+    path('finance/', CheckoutListView.as_view(), name='pharmacy-list'),
     
     path('doctors/create/', DoctorCreateView.as_view(), name='doctor-create'),
     path('nurses/create/', NurseCreateView.as_view(), name='nurse-create'),
@@ -76,6 +84,12 @@ urlpatterns = [
     
     path('reception/<int:pk>/', ReceptionUpdateView.as_view(), name='doctor-update'),
     path('checkout/<int:pk>/', CheckoutUpdateView.as_view(), name='nurse-update'),
+    path('programs/', ProgramListCreateView.as_view(), name='program-list-create'),
+    path('programs/<int:pk>/', ProgramRetrieveUpdateView.as_view(), name='program-detail'),
+    path('insurance-providers/', InsuranceProviderListCreateView.as_view(), name='insuranceprovider-list-create'),
+    path('insurance-providers/<int:pk>/', InsuranceProviderRetrieveUpdateView.as_view(), name='insuranceprovider-detail'),
+    path('facilities/', FacilityListCreateView.as_view(), name='facility-list-create'),
+    path('facilities/<int:pk>/', FacilityRetrieveUpdateView.as_view(), name='facility-detail'),
 
     
     
@@ -101,7 +115,7 @@ urlpatterns = [
 #from .views import PharmacistListCreateView, PharmacistRetrieveUpdateView
 #from .views import ReceptionistListCreateView, ReceptionistRetrieveUpdateView
 #from .views import FinanceStaffListCreateView, FinanceStaffRetrieveUpdateView
-#from .views import FacilityListCreateView, FacilityRetrieveUpdateView
+#
 
 #
 
@@ -116,10 +130,7 @@ urlpatterns = [
 #    path('patients/', PatientListCreateView.as_view(), name='patient-list-create'),
 #    path('patients/<int:pk>/', PatientRetrieveUpdateView.as_view(), name='patient-detail'),
 #    
-#    path('programs/', ProgramListCreateView.as_view(), name='program-list-create'),
-#    path('programs/<int:pk>/', ProgramRetrieveUpdateView.as_view(), name='program-detail'),
-#    path('insurance-providers/', InsuranceProviderListCreateView.as_view(), name='insuranceprovider-list-create'),
-#    path('insurance-providers/<int:pk>/', InsuranceProviderRetrieveUpdateView.as_view(), name='insuranceprovider-detail'),
+   
 #    path('claims/', ClaimListCreateView.as_view(), name='claim-list-create'),
 #    path('claims/<int:pk>/', ClaimRetrieveUpdateView.as_view(), name='claim-detail'),
 #    path('pharmacies/', PharmacyListCreateView.as_view(), name='pharmacy-list-create'),
@@ -136,7 +147,6 @@ urlpatterns = [
 #    path('receptionists/<int:pk>/', ReceptionistRetrieveUpdateView.as_view(), name='receptionist-detail'),
 #    path('financestaff/', FinanceStaffListCreateView.as_view(), name='financestaff-list-create'),
 #    path('financestaff/<int:pk>/', FinanceStaffRetrieveUpdateView.as_view(), name='financestaff-detail'),
-#    path('facilities/', FacilityListCreateView.as_view(), name='facility-list-create'),
-#    path('facilities/<int:pk>/', FacilityRetrieveUpdateView.as_view(), name='facility-detail'),
+  
 #]
 #

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import MedicappUser , Department#, Doctor, Patient, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
 from django.contrib.auth import authenticate
-from .models import Department, MedicappUser, Doctor, Nurse, Pharmacy, Lab, Checkout, Reception
+from .models import Department, MedicappUser, Doctor, Nurse, Pharmacy, Lab, Checkout, Reception, Program, InsuranceProvider, Facility
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -166,6 +166,29 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = ['id', 'name', 'email', 'date_formed', 'hod', 'staff_count']
 
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = '__all__'
+
+
+class InsuranceProviderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InsuranceProvider
+        fields = '__all__'
+
+
+class FacilitySerializer(serializers.ModelSerializer):
+    deficit = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Facility
+        fields = ['id', 'name', 'count', 'occupied', 'deficit']
+
+    def get_deficit(self, obj):
+        return obj.count - obj.occupied
+
+
 #class DepartmentNestedSerializer(serializers.ModelSerializer):
 #    class Meta:
 #        model = Department
@@ -239,18 +262,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 #        )
 #
 #
-#class ProgramSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = Program
-#        fields = '__all__'
-#
-#
-#class InsuranceProviderSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = InsuranceProvider
-#        fields = '__all__'
-#
-#
+
 #class ClaimSerializer(serializers.ModelSerializer):
 #    class Meta:
 #        model = Claim
@@ -335,12 +347,3 @@ class DepartmentSerializer(serializers.ModelSerializer):
 #        return rep
 #
 #
-#class FacilitySerializer(serializers.ModelSerializer):
-#    deficit = serializers.SerializerMethodField()
-#
-#    class Meta:
-#        model = Facility
-#        fields = ['id', 'name', 'count', 'occupied', 'deficit']
-#
-#    def get_deficit(self, obj):
-#        return obj.count - obj.occupied

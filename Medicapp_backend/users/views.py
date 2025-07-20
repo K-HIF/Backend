@@ -37,6 +37,25 @@ from .serializers import (
     ReceptionSerializer,
     MedicappUserSerializer,
 )
+from .serializers import AdminRegisterSerializer
+
+class AdminRegisterView(APIView):
+    def post(self, request):
+        serializer = AdminRegisterSerializer(data=request.data)
+        print("AdminRegisterView called")  # Debugging line
+        print("Request data:", request.data)  # Debugging line
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                "message": "User registered successfully.",
+                "user": {
+                    "email": user.email,
+                    "fullName": user.full_name,
+                    "department": user.department.name,
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UsersInDepartmentView(generics.ListAPIView):
     print("UsersInDepartmentView called")  # Debugging line
@@ -358,6 +377,31 @@ class DepartmentListCreateView(generics.ListCreateAPIView):
 class DepartmentRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    def get(self, request, *args, **kwargs):
+        print("GET request received")
+        print("Request path:", request.path)
+        print("Request user:", request.user)
+        return super().get(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        print("PUT request received")
+        print("Request data:", request.data)
+        instance = self.get_object()
+        print("Original Department instance:", instance)
+        return super().put(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        print("PATCH request received")
+        print("Request data:", request.data)
+        instance = self.get_object()
+        print("Original Department instance:", instance)
+        return super().patch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        print("DELETE request received")
+        instance = self.get_object()
+        print("Deleting Department instance:", instance)
+        return super().delete(request, *args, **kwargs)
 
 
 class ProgramRetrieveUpdateView(generics.RetrieveUpdateAPIView):

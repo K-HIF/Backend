@@ -35,7 +35,7 @@ from .views import (
     UsersInDepartmentView
     )
 from .views import payback_view,GoogleLoginView
-
+from .views import AdminRegisterView
 
 def health_check(request):
     return JsonResponse({'status': 'ok'})
@@ -66,6 +66,8 @@ urlpatterns = [
     path('lab/', LabListView.as_view(), name='pharmacy-list'),
     path('reception/', ReceptionListView.as_view(), name='pharmacy-list'),
     path('finance/', CheckoutListView.as_view(), name='pharmacy-list'),
+
+    path('admin/register/', AdminRegisterView.as_view(), name='admin-register'),
     
     path('doctors/create/', DoctorCreateView.as_view(), name='doctor-create'),
     path('nurses/create/', NurseCreateView.as_view(), name='nurse-create'),
@@ -90,9 +92,6 @@ urlpatterns = [
     path('insurance-providers/<int:pk>/', InsuranceProviderRetrieveUpdateView.as_view(), name='insuranceprovider-detail'),
     path('facilities/', FacilityListCreateView.as_view(), name='facility-list-create'),
     path('facilities/<int:pk>/', FacilityRetrieveUpdateView.as_view(), name='facility-detail'),
-
-    
-    
 ]
 
 

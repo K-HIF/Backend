@@ -61,7 +61,92 @@ class ReceptionSerializer(serializers.ModelSerializer):
         model = Reception
         fields = ['user_full_name', 'user_email', 'department','staff_id', 'date_employed', 'status', 'verification']
 
+#Admin
+from rest_framework import serializers
+from .models import MedicappUser, Doctor, Nurse, Lab, Reception, Checkout, Pharmacy
 
+class AdminRegisterSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, required=False)
+    department_id = serializers.IntegerField()  # Add department_id
+    status = serializers.BooleanField(default=True)
+    verification = serializers.BooleanField(default=False)
+    staff_id = serializers.CharField(required=True)
+    date_employed = serializers.DateField(required=True)
+
+    class Meta:
+        model = MedicappUser
+        fields = [
+            'email', 
+            'full_name', 
+            'department_id',  # Include department_id
+            'password', 
+            'status',
+            'verification',
+            'staff_id',
+            'date_employed'
+        ]
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        department_id = validated_data.pop('department_id', None)  # Get department_id
+
+        # Create the user instance
+        user_data = {
+            'email': validated_data['email'],
+            'full_name': validated_data['full_name'],
+            'password': password,
+            'department_id': department_id ,
+        }
+        user = MedicappUser(**user_data)
+
+        # Handle password
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+
+        user.save()
+
+        # Create the corresponding role entry
+        self.create_role_entry(user, department_id, validated_data)
+
+        return user
+
+    def create_role_entry(self, user, department_id, user_data):
+    # Get the department by ID
+        try:
+            department = Department.objects.get(id=department_id)  # Assuming a Department model exists
+        except Department.DoesNotExist:
+            raise serializers.ValidationError({"department_id": "Department does not exist"})
+    
+        department_name = department.name.lower()
+    
+        # Prepare the data for the specific department table
+        role_data = {
+            'user': user,
+            'status': user_data.get('status', True),
+            'verification': user_data.get('verification', False),
+            'staff_id': user_data.get('staff_id'),
+            'date_employed': user_data.get('date_employed'),
+        }
+    
+        if department_name == 'doctor':
+            Doctor.objects.create(**role_data)
+        elif department_name == 'nurse':
+            Nurse.objects.create(**role_data)
+        elif department_name == 'lab':
+            Lab.objects.create(**role_data)
+        elif department_name == 'reception':
+            Reception.objects.create(**role_data)
+        elif department_name == 'finance':
+            Checkout.objects.create(**role_data)
+        elif department_name == 'pharmacy':
+            Pharmacy.objects.create(**role_data)
+        else:
+            raise serializers.ValidationError({"department_id": "Unknown department"})
+    
 
 class RegisterSerializer(serializers.ModelSerializer):
     fullName = serializers.CharField(source='full_name')

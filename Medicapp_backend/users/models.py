@@ -88,7 +88,7 @@ class MedicappUserManager(BaseUserManager):
 class MedicappUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)  # Linking to Department
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)  
     
     is_active = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)

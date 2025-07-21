@@ -5,6 +5,8 @@ from users.serializers import RegisterSerializer, DepartmentSerializer, ProgramS
 from .models import MedicappUser , StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Department, Program, InsuranceProvider, Facility#, Doctor, Patient,  Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
 from django.http import JsonResponse
 import json
+from .utils import send_verification_email
+from django.conf import settings
 from django.db.models import Value 
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
@@ -37,6 +39,11 @@ from .serializers import (
     LabSerializer,
     CheckoutSerializer,
     ReceptionSerializer,
+    NurseEditSerializer,
+    PharmacyEditSerializer,
+    LabEditSerializer,
+    CheckoutEditSerializer,
+    ReceptionEditSerializer,
     MedicappUserSerializer,
 )
 from .serializers import AdminRegisterSerializer
@@ -195,9 +202,8 @@ class DoctorUpdateView(generics.UpdateAPIView):
         return Doctor.objects.all()
 
     def put(self, request, user_id, *args, **kwargs):
-        
         print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
-        
+
         # Get the object to be updated
         self.object = self.get_queryset().filter(user_id=user_id).first()
         if not self.object:
@@ -205,38 +211,248 @@ class DoctorUpdateView(generics.UpdateAPIView):
             return Response({'error': 'Doctor not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         print(f"Retrieved doctor object: {self.object}")  # Debugging statement
-        
+
         serializer = self.get_serializer(self.object, data=request.data)
-        
+
         # Validate and save the serializer
         if serializer.is_valid():
             print("Serializer is valid. Saving the doctor object.")  # Debugging statement
             serializer.save()
-            return Response(serializer.data)
-        
+
+            if request.data.get('verification', False):  # Use get to avoid KeyError
+                self.object.user.is_verified = True
+                self.object.user.is_active = True
+                self.object.user.save()
+                print("User verified and activated.")
+
+                # Send verification email with a password reset link instead
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+
+                print("User is_verified and is_active set to True.")
+
+            # Return a successful response with the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # If the serializer is not valid, return the errors
+        print(f"Serializer errors: {serializer.errors}")  # Debugging statement
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class NurseUpdateView(generics.UpdateAPIView):
+    
+    serializer_class = NurseEditSerializer
+    def get_queryset(self):
+        # Return all doctors, as we will filter by both user_id and id in the put method
+        return Nurse.objects.all()
+
+    def put(self, request, user_id, *args, **kwargs):
+        print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
+    
+        # Get the object to be updated
+        self.object = self.get_queryset().filter(user_id=user_id).first()
+        if not self.object:
+            print("nurse not found.")
+            return Response({'error': 'Nurse not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+        print(f"Retrieved nurse object: {self.object}")  # Debugging statement
+    
+        serializer = self.get_serializer(self.object, data=request.data)
+    
+        # Validate and save the serializer
+        if serializer.is_valid():
+            print("Serializer is valid. Saving the nurse object.")  # Debugging statement
+            serializer.save()
+    
+            if request.data.get('verification', False):  # Use get to avoid KeyError
+                self.object.user.is_verified = True
+                self.object.user.is_active = True
+                self.object.user.save()
+                print("User verified and activated.")
+    
+                # Send verification email with a password reset link instead
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+    
+                print("User is_verified and is_active set to True.")
+    
+            # Return a successful response with the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+        # If the serializer is not valid, return the errors
         print(f"Serializer errors: {serializer.errors}")  # Debugging statement
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class NurseUpdateView(generics.UpdateAPIView):
-    queryset = Nurse.objects.all()
-    serializer_class = NurseSerializer
 
 class LabUpdateView(generics.UpdateAPIView):
-    queryset = Lab.objects.all()
-    serializer_class = LabSerializer
+    serializer_class = LabEditSerializer
+    def get_queryset(self):
+        # Return all doctors, as we will filter by both user_id and id in the put method
+        return Lab.objects.all()
+
+    def put(self, request, user_id, *args, **kwargs):
+        print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
+    
+        # Get the object to be updated
+        self.object = self.get_queryset().filter(user_id=user_id).first()
+        if not self.object:
+            print("Labtech not found.")
+            return Response({'error': 'Lab not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+        print(f"Retrieved lab object: {self.object}")  # Debugging statement
+    
+        serializer = self.get_serializer(self.object, data=request.data)
+    
+        # Validate and save the serializer
+        if serializer.is_valid():
+            print("Serializer is valid. Saving the doctor object.")  # Debugging statement
+            serializer.save()
+    
+            if request.data.get('verification', False):  # Use get to avoid KeyError
+                self.object.user.is_verified = True
+                self.object.user.is_active = True
+                self.object.user.save()
+                print("User verified and activated.")
+    
+                # Send verification email with a password reset link instead
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+    
+                print("User is_verified and is_active set to True.")
+    
+            # Return a successful response with the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+        # If the serializer is not valid, return the errors
+        print(f"Serializer errors: {serializer.errors}")  # Debugging statement
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PharmacyUpdateView(generics.UpdateAPIView):
-    queryset = Pharmacy.objects.all()
-    serializer_class = PharmacySerializer
+    
+    serializer_class = PharmacyEditSerializer
+    def get_queryset(self):
+        # Return all doctors, as we will filter by both user_id and id in the put method
+        return Pharmacy.objects.all()
+
+    def put(self, request, user_id, *args, **kwargs):
+        print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
+    
+        # Get the object to be updated
+        self.object = self.get_queryset().filter(user_id=user_id).first()
+        if not self.object:
+            print("Doctor not found.")
+            return Response({'error': 'Pharmacist not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+        print(f"Retrieved pharmacy object: {self.object}")  # Debugging statement
+    
+        serializer = self.get_serializer(self.object, data=request.data)
+    
+        # Validate and save the serializer
+        if serializer.is_valid():
+            print("Serializer is valid. Saving the pharmacy object.")  # Debugging statement
+            serializer.save()
+    
+            if request.data.get('verification', False):  # Use get to avoid KeyError
+                self.object.user.is_verified = True
+                self.object.user.is_active = True
+                self.object.user.save()
+                print("User verified and activated.")
+    
+                # Send verification email with a password reset link instead
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+    
+                print("User is_verified and is_active set to True.")
+    
+            # Return a successful response with the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+        # If the serializer is not valid, return the errors
+        print(f"Serializer errors: {serializer.errors}")  # Debugging statement
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CheckoutUpdateView(generics.UpdateAPIView):
-    queryset = Checkout.objects.all()
-    serializer_class = CheckoutSerializer
+    
+    serializer_class = CheckoutEditSerializer
+    def get_queryset(self):
+        # Return all doctors, as we will filter by both user_id and id in the put method
+        return Checkout.objects.all()
+
+    def put(self, request, user_id, *args, **kwargs):
+        print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
+    
+        # Get the object to be updated
+        self.object = self.get_queryset().filter(user_id=user_id).first()
+        if not self.object:
+            print("Accountant not found.")
+            return Response({'error': 'Doctor not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+        print(f"Retrieved Checkout object: {self.object}")  # Debugging statement
+    
+        serializer = self.get_serializer(self.object, data=request.data)
+    
+        # Validate and save the serializer
+        if serializer.is_valid():
+            print("Serializer is valid. Saving the Checkout object.")  # Debugging statement
+            serializer.save()
+    
+            if request.data.get('verification', False):  # Use get to avoid KeyError
+                self.object.user.is_verified = True
+                self.object.user.is_active = True
+                self.object.user.save()
+                print("User verified and activated.")
+    
+                # Send verification email with a password reset link instead
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+    
+                print("User is_verified and is_active set to True.")
+    
+            # Return a successful response with the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+        # If the serializer is not valid, return the errors
+        print(f"Serializer errors: {serializer.errors}")  # Debugging statement
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class ReceptionUpdateView(generics.UpdateAPIView):
-    queryset = Reception.objects.all()
-    serializer_class = ReceptionSerializer
 
+    serializer_class = ReceptionEditSerializer
+    def get_queryset(self):
+        # Return all doctors, as we will filter by both user_id and id in the put method
+        return Reception.objects.all()
+
+    def put(self, request, user_id, *args, **kwargs):
+        print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
+    
+        # Get the object to be updated
+        self.object = self.get_queryset().filter(user_id=user_id).first()
+        if not self.object:
+            print("Receptionist not found.")
+            return Response({'error': 'Receptionist not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+        print(f"Retrieved doctor object: {self.object}")  # Debugging statement
+    
+        serializer = self.get_serializer(self.object, data=request.data)
+    
+        # Validate and save the serializer
+        if serializer.is_valid():
+            print("Serializer is valid. Saving the receptionist object.")  # Debugging statement
+            serializer.save()
+    
+            if request.data.get('verification', False):  # Use get to avoid KeyError
+                self.object.user.is_verified = True
+                self.object.user.is_active = True
+                self.object.user.save()
+                print("User verified and activated.")
+    
+                # Send verification email with a password reset link instead
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+    
+                print("User is_verified and is_active set to True.")
+    
+            # Return a successful response with the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+        # If the serializer is not valid, return the errors
+        print(f"Serializer errors: {serializer.errors}")  # Debugging statement
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
    
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -455,6 +671,7 @@ class FacilityListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated] 
 
     def get_queryset(self):
+        print(self.request.headers) 
         queryset = Facility.objects.all()
         department_id = self.request.query_params.get('department')
         if department_id:

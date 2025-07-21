@@ -2,7 +2,19 @@ from rest_framework import serializers
 from .models import MedicappUser , Department#, Doctor, Patient, Program, InsuranceProvider, Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
 from django.contrib.auth import authenticate
 from .models import Department, MedicappUser, Doctor, Nurse, Pharmacy, Lab, Checkout, Reception, Program, InsuranceProvider, Facility
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        
+        token['username'] = user.username
+        token['email'] = user.email  
+
+        return token
+    
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
@@ -40,6 +52,112 @@ class DoctorEditSerializer(serializers.ModelSerializer):
             user.email = user_data['email']
         if 'full_name' in user_data:
             user.full_name = user_data['full_name']
+        
+            
+        user.save()
+
+        # Update Doctor model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+class NurseEditSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_full_name = serializers.CharField(source='user.full_name')
+
+    class Meta:
+        model = Nurse
+        fields = ['user_full_name', 'user_email', 'staff_id', 'date_employed', 'status', 'verification']
+
+    def update(self, instance, validated_data):
+        # Extract and update nested user data
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'full_name' in user_data:
+            user.full_name = user_data['full_name']
+        user.save()
+
+        # Update Doctor model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+    
+class LabEditSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_full_name = serializers.CharField(source='user.full_name')
+
+    class Meta:
+        model = Lab
+        fields = ['user_full_name', 'user_email', 'staff_id', 'date_employed', 'status', 'verification']
+
+    def update(self, instance, validated_data):
+        # Extract and update nested user data
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'full_name' in user_data:
+            user.full_name = user_data['full_name']
+        user.save()
+
+        # Update Doctor model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+    
+class PharmacyEditSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_full_name = serializers.CharField(source='user.full_name')
+
+    class Meta:
+        model = Pharmacy
+        fields = ['user_full_name', 'user_email', 'staff_id', 'date_employed', 'status', 'verification']
+
+    def update(self, instance, validated_data):
+        # Extract and update nested user data
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'full_name' in user_data:
+            user.full_name = user_data['full_name']
+        user.save()
+
+        # Update Doctor model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+    
+
+class CheckoutEditSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_full_name = serializers.CharField(source='user.full_name')
+
+    class Meta:
+        model = Checkout
+        fields = ['user_full_name', 'user_email', 'staff_id', 'date_employed', 'status', 'verification']
+
+    def update(self, instance, validated_data):
+        # Extract and update nested user data
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'full_name' in user_data:
+            user.full_name = user_data['full_name']
         user.save()
 
         # Update Doctor model fields
@@ -49,7 +167,36 @@ class DoctorEditSerializer(serializers.ModelSerializer):
 
         return instance
 
+class ReceptionEditSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_full_name = serializers.CharField(source='user.full_name')
+
+    class Meta:
+        model = Reception
+        fields = ['user_full_name', 'user_email', 'staff_id', 'date_employed', 'status', 'verification']
+
+    def update(self, instance, validated_data):
+        # Extract and update nested user data
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'full_name' in user_data:
+            user.full_name = user_data['full_name']
+        user.save()
+
+        # Update Doctor model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
+
+    
 class NurseSerializer(serializers.ModelSerializer):
+    
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)

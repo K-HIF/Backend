@@ -75,19 +75,19 @@ urlpatterns = [
     path('nurses/create/', NurseCreateView.as_view(), name='nurse-create'),
     
     path('Doctor/<int:user_id>/', DoctorUpdateView.as_view(), name='doctor-update'),
-    path('Nurse/<int:pk>/', NurseUpdateView.as_view(), name='nurse-update'),
+    path('Nurse/<int:user_id>/', NurseUpdateView.as_view(), name='nurse-update'),
 
     path('pharmacy/create/', PharmacyCreateView.as_view(), name='doctor-create'),
     path('lab/create/', LabCreateView.as_view(), name='nurse-create'),
     
-    path('pharmacy/<int:pk>/', PharmacyUpdateView.as_view(), name='doctor-update'),
-    path('lab/<int:pk>/', LabUpdateView.as_view(), name='nurse-update'),
+    path('pharmacy/<int:user_id>/', PharmacyUpdateView.as_view(), name='doctor-update'),
+    path('lab/<int:user_id>/', LabUpdateView.as_view(), name='nurse-update'),
 
     path('reception/create/', ReceptionCreateView.as_view(), name='doctor-create'),
     path('checkout/create/', CheckoutCreateView.as_view(), name='nurse-create'),
     
-    path('reception/<int:pk>/', ReceptionUpdateView.as_view(), name='doctor-update'),
-    path('checkout/<int:pk>/', CheckoutUpdateView.as_view(), name='nurse-update'),
+    path('reception/<int:user_id>/', ReceptionUpdateView.as_view(), name='doctor-update'),
+    path('checkout/<int:user_id>/', CheckoutUpdateView.as_view(), name='nurse-update'),
     path('programs/', ProgramListCreateView.as_view(), name='program-list-create'),
     path('programs/<int:pk>/', ProgramRetrieveUpdateView.as_view(), name='program-detail'),
     path('insurance-providers/', InsuranceProviderListCreateView.as_view(), name='insuranceprovider-list-create'),

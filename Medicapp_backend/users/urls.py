@@ -51,6 +51,8 @@ urlpatterns = [
     path('departments/<int:pk>/', DepartmentRetrieveUpdateView.as_view(), name='department-detail'),
     path('departments/<int:department_id>/users/', UsersInDepartmentView.as_view(), name='users-in-department'),
 
+    #google login
+    path('google/login/', GoogleLoginView.as_view(), name='google-login'),
 
     # stars and downvotes
     path("health/", health_check),
@@ -72,8 +74,8 @@ urlpatterns = [
     path('doctors/create/', DoctorCreateView.as_view(), name='doctor-create'),
     path('nurses/create/', NurseCreateView.as_view(), name='nurse-create'),
     
-    path('doctors/<int:pk>/', DoctorUpdateView.as_view(), name='doctor-update'),
-    path('nurses/<int:pk>/', NurseUpdateView.as_view(), name='nurse-update'),
+    path('Doctor/<int:user_id>/', DoctorUpdateView.as_view(), name='doctor-update'),
+    path('Nurse/<int:pk>/', NurseUpdateView.as_view(), name='nurse-update'),
 
     path('pharmacy/create/', PharmacyCreateView.as_view(), name='doctor-create'),
     path('lab/create/', LabCreateView.as_view(), name='nurse-create'),
@@ -123,7 +125,7 @@ urlpatterns = [
 #    path('register/', RegisterUserView.as_view(), name='register'),
 #    path('login/', LoginView.as_view(), name='login'),
     
-#    path('google-login/', GoogleLoginView.as_view(), name='google-login'),
+#    p
 #    path('doctors/', DoctorListCreateView.as_view(), name='doctor-list-create'),
 #    path('doctors/<int:pk>/', DoctorRetrieveUpdateView.as_view(), name='doctor-detail'),
 #    path('patients/', PatientListCreateView.as_view(), name='patient-list-create'),

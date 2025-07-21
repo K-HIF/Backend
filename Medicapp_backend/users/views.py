@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+import requests
 from rest_framework.response import Response
 from users.serializers import RegisterSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer,FacilitySerializer # PatientSerializer ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer, 
 from .models import MedicappUser , StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Department, Program, InsuranceProvider, Facility#, Doctor, Patient,  Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
@@ -30,6 +31,7 @@ from .models import Department, Doctor, Nurse, Pharmacy, Lab, Checkout, Receptio
 from .serializers import (
     DepartmentSerializer,
     DoctorSerializer,
+    DoctorEditSerializer,
     NurseSerializer,
     PharmacySerializer,
     LabSerializer,
@@ -42,8 +44,7 @@ from .serializers import AdminRegisterSerializer
 class AdminRegisterView(APIView):
     def post(self, request):
         serializer = AdminRegisterSerializer(data=request.data)
-        print("AdminRegisterView called")  # Debugging line
-        print("Request data:", request.data)  # Debugging line
+        
         if serializer.is_valid():
             user = serializer.save()
             return Response({
@@ -187,9 +188,35 @@ class ReceptionCreateView(generics.CreateAPIView):
 
 
 class DoctorUpdateView(generics.UpdateAPIView):
-    queryset = Doctor.objects.all()
-    serializer_class = DoctorSerializer
+    serializer_class = DoctorEditSerializer
 
+    def get_queryset(self):
+        # Return all doctors, as we will filter by both user_id and id in the put method
+        return Doctor.objects.all()
+
+    def put(self, request, user_id, *args, **kwargs):
+        
+        print(f"Received PUT request for user_id: {user_id} with data: {request.data}")  # Debugging statement
+        
+        # Get the object to be updated
+        self.object = self.get_queryset().filter(user_id=user_id).first()
+        if not self.object:
+            print("Doctor not found.")
+            return Response({'error': 'Doctor not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        print(f"Retrieved doctor object: {self.object}")  # Debugging statement
+        
+        serializer = self.get_serializer(self.object, data=request.data)
+        
+        # Validate and save the serializer
+        if serializer.is_valid():
+            print("Serializer is valid. Saving the doctor object.")  # Debugging statement
+            serializer.save()
+            return Response(serializer.data)
+        
+        print(f"Serializer errors: {serializer.errors}")  # Debugging statement
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class NurseUpdateView(generics.UpdateAPIView):
     queryset = Nurse.objects.all()
     serializer_class = NurseSerializer
@@ -319,51 +346,53 @@ def post_downvote(request):
     return Response({"message": "Downvote successful", "count": counter.count})
 
 
-# ✅ Google Login View using your custom MedicappUser
 class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         token = request.data.get('credential') or request.data.get('token')
+        department = request.data.get('department')
+
         if not token:
             return Response({'error': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        strategy = load_strategy(request)
-        backend = GoogleOAuth2(strategy)
+        response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={token}')
+        if response.status_code != 200:
+            return Response({'error': 'Invalid token', 'details': response.json()}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            user_data = backend.user_data(token)
-        except Exception as e:
-            return Response({'error': 'Invalid token', 'details': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+        user_data = response.json()
         email = user_data.get('email')
-        username = email  # Use email as username
-
+        full_name = user_data.get('name')
+        print("User data from Google:", user_data)
+        print("Email:", email)
+        print("Full name:", full_name)
         if not email:
-            return Response({'error': 'Email not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Email not found in token'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={
-                'username': username,
-                'is_active': True,
-            }
-        )
+        serializer = RegisterSerializer(data={
+            'email': email,
+            'fullName': full_name,
+            'department': department,
+        })
 
-        if created:
-            user.set_unusable_password()
-            user.save()
+        if serializer.is_valid():
+            user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
+            # Issue JWT tokens
+            refresh = RefreshToken.for_user(user)
 
-        return Response({
-            'access_token': str(refresh.access_token),
-            'refresh_token': str(refresh),
-            'user': {
-                'email': user.email,
-                'username': user.username,
-            }
-        }, status=status.HTTP_200_OK)
+            return Response({
+                'user': {
+                    'email': user.email,
+                    'full_name': user.fullName,
+                    'department': user.department,
+                },
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }, status=status.HTTP_200_OK)
+
+        print("Serializer errors:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DepartmentListCreateView(generics.ListCreateAPIView):

@@ -17,53 +17,83 @@ class DoctorSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)
+    user_id = serializers.IntegerField()
+    id = serializers.IntegerField()
     class Meta:
         model = Doctor
-        fields = ['user_full_name', 'user_email', 'staff_id', 'department','date_employed', 'status', 'verification']
+        fields = ['user_full_name', 'user_email', 'staff_id', 'department','date_employed', 'status', 'verification', 'user_id', 'id']
+
+class DoctorEditSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email')
+    user_full_name = serializers.CharField(source='user.full_name')
+
+    class Meta:
+        model = Doctor
+        fields = ['user_full_name', 'user_email', 'staff_id', 'date_employed', 'status', 'verification']
+
+    def update(self, instance, validated_data):
+        # Extract and update nested user data
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+
+        if 'email' in user_data:
+            user.email = user_data['email']
+        if 'full_name' in user_data:
+            user.full_name = user_data['full_name']
+        user.save()
+
+        # Update Doctor model fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 class NurseSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     class Meta:
         model = Nurse
-        fields = ['user_full_name', 'user_email','department', 'staff_id', 'date_employed', 'status', 'verification']
+        fields = ['user_full_name', 'user_email','department', 'staff_id', 'date_employed', 'status', 'verification', 'user_id']
 
 class LabSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     class Meta:
         model = Lab
-        fields = ['user_full_name', 'user_email', 'staff_id', 'department','date_employed', 'status', 'verification']
+        fields = ['user_full_name', 'user_email', 'staff_id', 'department','date_employed', 'status', 'verification', 'user_id']
 
 class PharmacySerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     class Meta:
         model = Pharmacy
-        fields = ['user_full_name', 'user_email', 'staff_id', 'department','date_employed', 'status', 'verification']
+        fields = ['user_full_name', 'user_email', 'staff_id', 'department','date_employed', 'status', 'verification', 'user_id']
 
 class CheckoutSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     class Meta:
         model = Checkout
-        fields = ['user_full_name', 'user_email', 'department','staff_id', 'date_employed', 'status', 'verification']
+        fields = ['user_full_name', 'user_email', 'department','staff_id', 'date_employed', 'status', 'verification', 'user_id']
 
 class ReceptionSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email')
     user_full_name = serializers.CharField(source='user.full_name')
     department = serializers.CharField(source='user.department.name', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     class Meta:
         model = Reception
-        fields = ['user_full_name', 'user_email', 'department','staff_id', 'date_employed', 'status', 'verification']
+        fields = ['user_full_name', 'user_email', 'department','staff_id', 'date_employed', 'status', 'verification', 'user_id']
 
-#Admin
-from rest_framework import serializers
-from .models import MedicappUser, Doctor, Nurse, Lab, Reception, Checkout, Pharmacy
 
 class AdminRegisterSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()

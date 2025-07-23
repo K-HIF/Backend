@@ -337,7 +337,7 @@ class PharmacyUpdateView(generics.UpdateAPIView):
         # Get the object to be updated
         self.object = self.get_queryset().filter(user_id=user_id).first()
         if not self.object:
-            print("Doctor not found.")
+            print("Pharmacist not found.")
             return Response({'error': 'Pharmacist not found.'}, status=status.HTTP_404_NOT_FOUND)
     
         print(f"Retrieved pharmacy object: {self.object}")  # Debugging statement
@@ -695,7 +695,7 @@ class GoogleLoginView(APIView):
 
 class DepartmentListCreateView(generics.ListCreateAPIView):
     serializer_class = DepartmentSerializer
-    permission_classes = [IsAuthenticated] 
+    
     
     def get_queryset(self):
         return Department.objects.exclude(name__iexact='admin')
@@ -734,23 +734,23 @@ class DepartmentRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
 class ProgramRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
-    permission_classes = [IsAuthenticated] 
+    
 
 
 class InsuranceProviderListCreateView(generics.ListCreateAPIView):
     queryset = InsuranceProvider.objects.all()
     serializer_class = InsuranceProviderSerializer
-    permission_classes = [IsAuthenticated] 
+    
 
 
 class InsuranceProviderRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = InsuranceProvider.objects.all()
     serializer_class = InsuranceProviderSerializer
-    permission_classes = [IsAuthenticated] 
+   
 
 class FacilityListCreateView(generics.ListCreateAPIView):
     serializer_class = FacilitySerializer
-    permission_classes = [IsAuthenticated] 
+    
 
     def get_queryset(self):
         print(self.request.headers) 
@@ -764,12 +764,12 @@ class FacilityListCreateView(generics.ListCreateAPIView):
 class FacilityRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Facility.objects.all()
     serializer_class = FacilitySerializer
-    permission_classes = [IsAuthenticated] 
+    
 
 class ProgramListCreateView(generics.ListCreateAPIView):
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
-    permission_classes = [IsAuthenticated] 
+    
 
     
 

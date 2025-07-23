@@ -63,6 +63,26 @@ class Department(models.Model):
         # Count users in this department, excluding 'admin'
         return MedicappUser.objects.filter(department=self).exclude(department__name='admin').count()
 
+class Patient(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    dob = models.DateField(default=timezone.now)
+    age = models.CharField(max_length=255)  
+    id_number = models.IntegerField(unique=True, blank=True, null=True)
+    phone_number = models.CharField(max_length=15, unique=True,blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    occupation = models.CharField(max_length=255, blank=True, null=True)
+    insurance= models.BooleanField(default=False)
+    insurance_provider = models.ForeignKey(InsuranceProvider, on_delete=models.CASCADE, blank=True, null=True)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE, blank=True, null=True)
+    date_registered = models.DateTimeField(auto_now_add=True)
+    visits = models.PositiveIntegerField(default=0)
+    passport_number = models.CharField(max_length=255, unique=True, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class MedicappUserManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, department=None, role_type=None):
         print(f"Creating user with role type: {role_type}") 
@@ -107,7 +127,7 @@ class RoleBase(models.Model):
     status = models.BooleanField(default=True)  # Active or inactive
     verification = models.BooleanField(default=False)  # Verified or unverified
     date_employed = models.DateTimeField(default=timezone.now)
-    staff_id = models.CharField(max_length=100, unique=True)
+    staff_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -130,6 +150,8 @@ class Checkout(RoleBase):
 class Reception(RoleBase):
     pass
 
+
+#Downvote and Star Count Models
 class StarCount_2(models.Model):
     count = models.IntegerField()
     updated_at = models.DateTimeField(auto_now=True)
@@ -157,96 +179,24 @@ class IPDownvote(models.Model):
     def __str__(self):  
         return f"{self.ip_address} downvoted at {self.timestamp}"
     
+#upvote
+class UpvoteCounter(models.Model):
+    count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):  
+        return f"Total Downvotes: {self.count}"
+
+class UserUpvote(models.Model):
+    user = models.OneToOneField(MedicappUser, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):  
+        return f"{self.user.full_name} downvoted at {self.timestamp}"
+
+class IPUpvote(models.Model):
+    ip_address = models.GenericIPAddressField(unique=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):  
+        return f"{self.ip_address} downvoted at {self.timestamp}"
     
-#class Claim(models.Model):
-#    insurance_name = models.CharField(max_length=255)
-#    email = models.EmailField()
-#    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
-#    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-#
-#    def __str__(self):
-#        return f"Claim for {self.patient.name} ({self.patient.patient_id})"
-#
-#
-#class Pharmacy(models.Model):
-#    name = models.CharField(max_length=255)
-#    address = models.CharField(max_length=255)
-#    phone = models.CharField(max_length=20)
-#    manager = models.CharField(max_length=255)
-#
-#    def __str__(self):
-#        return self.name
-#
-#
-#class PharmacyItem(models.Model):
-#    pharmacy = models.ForeignKey(Pharmacy, related_name='items', on_delete=models.CASCADE)
-#    name = models.CharField(max_length=255)
-#    quantity = models.PositiveIntegerField(default=0)
-#    price = models.DecimalField(max_digits=8, decimal_places=2)
-#    expiry_date = models.DateField()
-#    batch_number = models.CharField(max_length=100)
-#
-#    def __str__(self):
-#        return f"{self.name} ({self.batch_number})"
-#
-#
-#class Nurse(models.Model):
-#    name = models.CharField(max_length=255)
-#    email = models.EmailField(unique=True)
-#    staff_id = models.CharField(max_length=100, unique=True)
-#    status = models.BooleanField(default=True)  
-#    employed_date = models.DateField()
-#    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='nurses')
-#
-#    def __str__(self):
-#        return f"{self.name} ({self.staff_id})"
-#
-#
-#class LabTechnician(models.Model):
-#    name = models.CharField(max_length=255)
-#    email = models.EmailField(unique=True)
-#    staff_id = models.CharField(max_length=100, unique=True)
-#    status = models.BooleanField(default=True)
-#    employed_date = models.DateField()
-#    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='lab_technicians')
-#
-#    def __str__(self):
-#        return f"{self.name} ({self.staff_id})"
-#
-#
-#class Pharmacist(models.Model):
-#    name = models.CharField(max_length=255)
-#    email = models.EmailField(unique=True)
-#    staff_id = models.CharField(max_length=100, unique=True)
-#    status = models.BooleanField(default=True)
-#    employed_date = models.DateField()
-#    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='pharmacists')
-#
-#    def __str__(self):
-#        return f"{self.name} ({self.staff_id})"
-#
-#
-#class Receptionist(models.Model):
-#    name = models.CharField(max_length=255)
-#    email = models.EmailField(unique=True)
-#    staff_id = models.CharField(max_length=100, unique=True)
-#    status = models.BooleanField(default=True)
-#    employed_date = models.DateField()
-#    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='receptionists')
-#
-#    def __str__(self):
-#        return f"{self.name} ({self.staff_id})"
-#
-#
-#class FinanceStaff(models.Model):
-#    name = models.CharField(max_length=255)
-#    email = models.EmailField(unique=True)
-#    staff_id = models.CharField(max_length=100, unique=True)
-#    status = models.BooleanField(default=True)
-#    employed_date = models.DateField()
-#    department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='finance_staff')
-#
-#    def __str__(self):
-#        return f"{self.name} ({self.staff_id})"
-#
-#

@@ -2,7 +2,7 @@
 # import JsonResponse
 from django.http import JsonResponse
 from django.urls import path
-from .views import RegisterUserView, ApproveUserView, CustomTokenObtainPairView
+from .views import RegisterUserView, CustomTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import DepartmentListCreateView, DepartmentRetrieveUpdateView
 from . import views
@@ -34,7 +34,7 @@ from .views import (
     FacilityRetrieveUpdateView,
     UsersInDepartmentView
     )
-from .views import payback_view,GoogleLoginView
+from .views import payback_view,GoogleLoginView,GoogleRegisterView
 from .views import AdminRegisterView
 
 def health_check(request):
@@ -44,7 +44,6 @@ def health_check(request):
 urlpatterns = [
     path('register/', RegisterUserView.as_view()),
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('approve/<int:user_id>/', ApproveUserView.as_view()),
     path('token/', CustomTokenObtainPairView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view()),
     path('departments/', DepartmentListCreateView.as_view(), name='department-list-create'),
@@ -52,13 +51,15 @@ urlpatterns = [
     path('departments/<int:department_id>/users/', UsersInDepartmentView.as_view(), name='users-in-department'),
 
     #google login
+    path('google/register/', GoogleRegisterView.as_view(), name='google-register'),
     path('google/login/', GoogleLoginView.as_view(), name='google-login'),
-
-    # stars and downvotes
+    # stars and votes
     path("health/", health_check),
     path('stars/', payback_view, name='payback'),
     path('downvotes/', views.get_downvotes),
     path('downvote/', views.post_downvote),
+    path('upvotes/', views.get_upvotes),
+    path('upvote/', views.post_upvote),
 
     #Staff URLs
     path('departments/', DepartmentListView.as_view(), name='department-list'),
@@ -80,14 +81,14 @@ urlpatterns = [
     path('pharmacy/create/', PharmacyCreateView.as_view(), name='doctor-create'),
     path('lab/create/', LabCreateView.as_view(), name='nurse-create'),
     
-    path('pharmacy/<int:user_id>/', PharmacyUpdateView.as_view(), name='doctor-update'),
-    path('lab/<int:user_id>/', LabUpdateView.as_view(), name='nurse-update'),
+    path('Pharmacy/<int:user_id>/', PharmacyUpdateView.as_view(), name='doctor-update'),
+    path('Lab/<int:user_id>/', LabUpdateView.as_view(), name='nurse-update'),
 
     path('reception/create/', ReceptionCreateView.as_view(), name='doctor-create'),
     path('checkout/create/', CheckoutCreateView.as_view(), name='nurse-create'),
     
-    path('reception/<int:user_id>/', ReceptionUpdateView.as_view(), name='doctor-update'),
-    path('checkout/<int:user_id>/', CheckoutUpdateView.as_view(), name='nurse-update'),
+    path('Reception/<int:user_id>/', ReceptionUpdateView.as_view(), name='doctor-update'),
+    path('Checkout/<int:user_id>/', CheckoutUpdateView.as_view(), name='nurse-update'),
     path('programs/', ProgramListCreateView.as_view(), name='program-list-create'),
     path('programs/<int:pk>/', ProgramRetrieveUpdateView.as_view(), name='program-detail'),
     path('insurance-providers/', InsuranceProviderListCreateView.as_view(), name='insuranceprovider-list-create'),

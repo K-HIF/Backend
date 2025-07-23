@@ -3,6 +3,8 @@ from .models import MedicappUser , Department#, Doctor, Patient, Program, Insura
 from django.contrib.auth import authenticate
 from .models import Department, MedicappUser, Doctor, Nurse, Pharmacy, Lab, Checkout, Reception, Program, InsuranceProvider, Facility
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.utils.crypto import get_random_string
+from .utils import send_password_email
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -246,7 +248,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, required=False)
-    department_id = serializers.IntegerField()  # Add department_id
+    department_id = serializers.IntegerField()  
     status = serializers.BooleanField(default=True)
     verification = serializers.BooleanField(default=False)
     staff_id = serializers.CharField(required=True)
@@ -376,7 +378,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.is_active = True
             user.is_verified = True
         else:
-            user.set_unusable_password()
+            temp_password = get_random_string(length=10)
+            send_password_email(user.email, user.full_name, temp_password )
+    
+            user.set_password(temp_password)
             user.is_active = False
             user.is_verified = False
 

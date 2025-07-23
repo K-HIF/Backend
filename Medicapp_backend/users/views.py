@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 import requests
 from rest_framework.response import Response
 from users.serializers import RegisterSerializer, DepartmentSerializer, ProgramSerializer, InsuranceProviderSerializer,FacilitySerializer # PatientSerializer ClaimSerializer, PharmacySerializer, PharmacyItemSerializer, NurseSerializer, LabTechnicianSerializer, PharmacistSerializer, ReceptionistSerializer, FinanceStaffSerializer, 
-from .models import MedicappUser , StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Department, Program, InsuranceProvider, Facility#, Doctor, Patient,  Claim, Pharmacy, PharmacyItem, Nurse, LabTechnician, Pharmacist, Receptionist, FinanceStaff, Facility
+from .models import MedicappUser , StarCount_2, DownvoteCounter, UserDownvote, IPDownvote, Department, Program, InsuranceProvider, Facility, UpvoteCounter, UserUpvote, IPUpvote # Patient,  Claim
 from django.http import JsonResponse
 import json
 from .utils import send_verification_email
@@ -226,7 +226,7 @@ class DoctorUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
 
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+                send_verification_email(self.object.user.email, self.object.user.full_name)
 
                 print("User is_verified and is_active set to True.")
 
@@ -236,6 +236,7 @@ class DoctorUpdateView(generics.UpdateAPIView):
         # If the serializer is not valid, return the errors
         print(f"Serializer errors: {serializer.errors}")  # Debugging statement
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class NurseUpdateView(generics.UpdateAPIView):
     
     serializer_class = NurseEditSerializer
@@ -268,7 +269,7 @@ class NurseUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
     
                 print("User is_verified and is_active set to True.")
     
@@ -311,7 +312,7 @@ class LabUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
     
                 print("User is_verified and is_active set to True.")
     
@@ -355,7 +356,7 @@ class PharmacyUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
     
                 print("User is_verified and is_active set to True.")
     
@@ -399,7 +400,7 @@ class CheckoutUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
     
                 print("User is_verified and is_active set to True.")
     
@@ -443,7 +444,7 @@ class ReceptionUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.id)
+                send_verification_email(self.object.user.email, self.object.user.full_name)
     
                 print("User is_verified and is_active set to True.")
     
@@ -456,9 +457,14 @@ class ReceptionUpdateView(generics.UpdateAPIView):
    
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
-
+    def post(self, request, *args, **kwargs):
+        print("POST request received")
+        print("Request path:", request.path)
+        print("Request user:", request.user)
+        return super().post(request, *args, **kwargs)
 
 class RegisterUserView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         print("Register request data:", request.data) 
         serializer = RegisterSerializer(data=request.data)
@@ -469,33 +475,6 @@ class RegisterUserView(APIView):
         else:
             print("Serializer errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class ApproveUserView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def post(self, request, user_id):
-        try:
-            user = MedicappUser.objects.get(id=user_id)
-            if user.is_verified:
-                return Response({"detail": "User already verified."}, status=400)
-
-            temp_password = get_random_string(10)
-            user.set_password(temp_password)
-            user.is_verified = True
-            user.is_active = True
-            user.save()
-
-            send_mail(
-                "Your MedicApp Account Approved",
-                f"Email: {user.email}\nPassword: {temp_password}",
-                "admin@medicapp.com",
-                [user.email],
-            )
-
-            return Response({"message": "User verified and credentials sent."})
-        except MedicappUser.DoesNotExist:
-            return Response({"error": "User not found"}, status=404)
-
 
 
 @csrf_exempt
@@ -561,8 +540,34 @@ def post_downvote(request):
     counter.save()
     return Response({"message": "Downvote successful", "count": counter.count})
 
+#upvotes
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_upvotes(request):
+    counter, _ = UpvoteCounter.objects.get_or_create(id=1)
+    return Response({"count": counter.count})
 
-class GoogleLoginView(APIView):
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def post_upvote(request):
+    counter, _ = UpvoteCounter.objects.get_or_create(id=1)
+
+    if request.user.is_authenticated:
+        if UserUpvote.objects.filter(user=request.user).exists():
+            return Response({"detail": "You have already upvoted."}, status=status.HTTP_400_BAD_REQUEST)
+        UserUpvote.objects.create(user=request.user)
+    else:
+        ip = get_client_ip(request)
+        if IPUpvote.objects.filter(ip_address=ip).exists():
+            return Response({"detail": "This IP has already upvoted."}, status=status.HTTP_400_BAD_REQUEST)
+        IPUpvote.objects.create(ip_address=ip)
+
+    counter.count += 1
+    counter.save()
+    return Response({"message": "Upvote successful", "count": counter.count})
+
+class GoogleRegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -609,6 +614,83 @@ class GoogleLoginView(APIView):
 
         print("Serializer errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('credential') or request.data.get('token')
+        department = request.data.get('department')
+
+        if not token:
+            return Response({'error': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={token}')
+        if response.status_code != 200:
+            return Response({'error': 'Invalid token', 'details': response.json()}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_data = response.json()
+        email = user_data.get('email')
+        full_name = user_data.get('name')
+        print("User data from Google:", user_data)
+
+        if not email:
+            return Response({'error': 'Email not found in token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # ✅ Check if user already exists
+            user = MedicappUser.objects.get(email=email)
+            dept=Department.objects.get(name=department)
+            
+            if user.department_id != dept.id:
+                return Response(
+                    {'detail': "You are not a '" + department + "' user."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if user.is_verified:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'user': {
+                        'email': user.email,
+                        'full_name': user.full_name,
+                        'department': dept.name,
+                    },
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {'detail': 'Account exists, but wait for admin verification.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        except MedicappUser.DoesNotExist:
+            if department == 'admin':
+                return Response(
+                    {'detail': "You cannot register as an 'admin' user."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            serializer = RegisterSerializer(data={
+                'email': email,
+                'fullName': full_name,
+                'department': department,
+            })
+
+            if serializer.is_valid():
+                user = serializer.save()  # 🔥 This actually creates the user in DB
+                return Response({
+                    'user': {
+                        'email': user.email,
+                        'full_name': user.full_name,
+                        'department': user.department.name,
+                    },
+                    'access': None,
+                    'refresh': None,
+                    'detail': 'Account created. Wait for admin verification.'
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DepartmentListCreateView(generics.ListCreateAPIView):

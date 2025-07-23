@@ -269,7 +269,7 @@ class NurseUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
+                send_verification_email(self.object.user.email, self.object.user.full_name)
     
                 print("User is_verified and is_active set to True.")
     
@@ -312,7 +312,7 @@ class LabUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
+                send_verification_email(self.object.user.email, self.object.user.full_name)
     
                 print("User is_verified and is_active set to True.")
     
@@ -356,7 +356,7 @@ class PharmacyUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
+                send_verification_email(self.object.user.email, self.object.user.full_name)
     
                 print("User is_verified and is_active set to True.")
     
@@ -400,7 +400,7 @@ class CheckoutUpdateView(generics.UpdateAPIView):
                 print("User verified and activated.")
     
                 # Send verification email with a password reset link instead
-                send_verification_email(self.object.user.email, self.object.user.full_name, self.object.user.password)
+                send_verification_email(self.object.user.email, self.object.user.full_name)
     
                 print("User is_verified and is_active set to True.")
     
@@ -771,16 +771,7 @@ class ProgramListCreateView(generics.ListCreateAPIView):
     serializer_class = ProgramSerializer
     permission_classes = [IsAuthenticated] 
 
-    def post(self, request, *args, **kwargs):
-        print("⚠️ Raw request data:", request.data)
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            print("✅ Serializer is valid:", serializer.validated_data)
-            self.perform_create(serializer)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            print("❌ Serializer errors:", serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 #class NurseListCreateView(generics.ListCreateAPIView):
